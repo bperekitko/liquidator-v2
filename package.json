@@ -1,35 +1,42 @@
 {
-  "name": "liquidator-v2",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "scripts": {
-    "start": "mkdir -p logs && tsc && node -r dotenv/config dist/app.js >> ./logs/liquidator-log ",
-    "dev": "nodemon"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bperekitko/liquidator-v2.git"
-  },
-  "author": "bartlomiej perekitko",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/bperekitko/liquidator-v2/issues"
-  },
-  "homepage": "https://github.com/bperekitko/liquidator-v2#readme",
-  "devDependencies": {
-    "@types/express": "^4.17.11",
-    "@types/pino": "^6.3.6",
-    "@typescript-eslint/eslint-plugin": "^4.21.0",
-    "@typescript-eslint/parser": "^4.21.0",
-    "dotenv": "^8.2.0",
-    "eslint": "^7.23.0",
-    "ethers": "^5.1.0",
-    "express": "^4.17.1",
-    "nodemon": "^2.0.7",
-    "pino": "^6.11.2",
-    "pino-pretty": "^4.7.1",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.3"
-  }
+	"name": "liquidator-v2",
+	"version": "1.0.0",
+	"description": "",
+	"main": "app.js",
+	"scripts": {
+		"start": "ENVIRONMENT=prod mkdir -p logs && tsc && node -r dotenv/config dist/app/app.js >> ./logs/liquidator-log ",
+		"dev": "ENVIRONMENT=dev nodemon",
+		"test": "mocha -r ts-node/register src/**/*.spec.ts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bperekitko/liquidator-v2.git"
+	},
+	"author": "bartlomiej perekitko",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/bperekitko/liquidator-v2/issues"
+	},
+	"homepage": "https://github.com/bperekitko/liquidator-v2#readme",
+	"devDependencies": {
+		"@types/chai": "^4.2.16",
+		"@types/express": "^4.17.11",
+		"@types/mocha": "^8.2.2",
+		"@types/pino": "^6.3.6",
+		"@typescript-eslint/eslint-plugin": "^4.21.0",
+		"@typescript-eslint/parser": "^4.21.0",
+		"chai": "^4.3.4",
+		"dotenv": "^8.2.0",
+		"eslint": "^7.23.0",
+		"ethers": "^5.1.0",
+		"express": "^4.17.1",
+		"mocha": "^8.3.2",
+		"nodemon": "^2.0.7",
+		"pino": "^6.11.2",
+		"pino-pretty": "^4.7.1",
+		"prettier": "^2.2.1",
+		"prettier-plugin-solidity": "^1.0.0-beta.7",
+		"ts-node": "^9.1.1",
+		"typescript": "^4.2.3"
+	}
 }

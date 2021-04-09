@@ -1,6 +1,6 @@
 import express from 'express';
 import { log } from './logger/logger';
-import { start } from './arbitrage/arbitration-radar';
+import { startArbitrationRadar } from './arbitrage/arbitration-radar';
 
 log.info('Starting the application!');
 
@@ -8,7 +8,7 @@ const app = express();
 const port = 3000;
 
 app.get('/', (req, res) => {
-  start();
+  startArbitrationRadar();
   res.send('The app is working just fine!');
 });
 

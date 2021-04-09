@@ -1,16 +1,16 @@
+import { DAI, WETH } from '../ethereum/constants/tokens';
 import { log } from '../logger/logger';
-import { ethers } from 'ethers';
-import { config } from '../../config/config';
+import { getPriceOnSushiswap, getPriceOnUniswap } from './uniswap/get-price';
 
-export const start = async (): Promise<void> => {
-  log.info('Arbitration radar started. Monitoring network for interesting opportunities.');
+export const startArbitrationRadar = async (): Promise<void> => {
+	log.info('Arbitration radar started. Monitoring network for interesting opportunities.');
 
-  const provider = new ethers.providers.InfuraProvider(config.NETWORK, {
-    projectId: config.INFURA_PROJECT_ID,
-    projectSecret: config.INFURA_PROJECT_SECRET,
-  });
+	const uniswapPrice = await getPriceOnUniswap(10, WETH, DAI);
+	const sushiswapPrice = await getPriceOnSushiswap(10, WETH, DAI);
 
-  const number = await provider.getBlockNumber();
+	const isCheaper = uniswapPrice.lt(sushiswapPrice);
 
-  log.info(`Block number is %d`, number);
+	log.info(`Uniswap price for 10 WETH in DAI is ${uniswapPrice.toString()}`);
+	log.info(`Sushiswap price for 10 WETH in DAI is ${sushiswapPrice.toString()}`);
+	log.info(`Is uniswapCheaper?: ${isCheaper}`);
 };
