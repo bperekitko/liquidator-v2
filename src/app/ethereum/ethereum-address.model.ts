@@ -4,4 +4,5 @@ export interface EthereumAddress {
 	rinkeby?: string;
 	kovan?: string;
 	goerli?: string;
+	local: string;
 }

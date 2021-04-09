@@ -1,4 +1,5 @@
-import { DAI, WETH } from '../ethereum/constants/tokens';
+import { DAI } from '../ethereum/constants/tokens/DAI';
+import { WETH } from '../ethereum/constants/tokens/WETH';
 import { log } from '../logger/logger';
 import { getPriceOnSushiswap, getPriceOnUniswap } from './uniswap/get-price';
 

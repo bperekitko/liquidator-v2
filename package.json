@@ -4,8 +4,10 @@
 	"description": "",
 	"main": "app.js",
 	"scripts": {
-		"start": "ENVIRONMENT=prod mkdir -p logs && tsc && node -r dotenv/config dist/app/app.js >> ./logs/liquidator-log ",
-		"dev": "ENVIRONMENT=dev nodemon",
+		"start:prod": "ENVIRONMENT=prod mkdir -p logs && tsc && node -r dotenv/config dist/app/app.js >> ./logs/liquidator-log ",
+		"start:dev": "ENVIRONMENT=dev nodemon",
+		"hardhat": "hardhat node",
+		"deploy": "hardhat run scripts/deploy.ts",
 		"test": "mocha -r ts-node/register src/**/*.spec.ts"
 	},
 	"repository": {
@@ -19,6 +21,8 @@
 	},
 	"homepage": "https://github.com/bperekitko/liquidator-v2#readme",
 	"devDependencies": {
+		"@nomiclabs/hardhat-ethers": "^2.0.2",
+		"@nomiclabs/hardhat-waffle": "^2.0.1",
 		"@types/chai": "^4.2.16",
 		"@types/express": "^4.17.11",
 		"@types/mocha": "^8.2.2",
@@ -28,8 +32,10 @@
 		"chai": "^4.3.4",
 		"dotenv": "^8.2.0",
 		"eslint": "^7.23.0",
+		"ethereum-waffle": "^3.3.0",
 		"ethers": "^5.1.0",
 		"express": "^4.17.1",
+		"hardhat": "^2.1.2",
 		"mocha": "^8.3.2",
 		"nodemon": "^2.0.7",
 		"pino": "^6.11.2",

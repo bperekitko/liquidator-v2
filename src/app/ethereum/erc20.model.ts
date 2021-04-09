@@ -1,7 +1,5 @@
-import { EthereumAddress } from './ethereum-address.model';
-
 export interface ERC20 {
-	address: EthereumAddress;
+	address: string;
 	ticker: string;
 	decimals: number;
 }
