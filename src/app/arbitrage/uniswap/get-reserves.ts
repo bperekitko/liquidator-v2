@@ -6,8 +6,6 @@ import { ethereumProvider } from '../../ethereum/ethereum-provider';
 import { log } from '../../logger/logger';
 import { computeSushiswapPairAddress, computeUniswapPairAddress } from './compute-pair-address/compute-pair-address';
 
-const NETWORK = config.NETWORK;
-
 export async function getUniswapReserves(token0: ERC20, token1: ERC20): Promise<string[]> {
 	const address = computeUniswapPairAddress(token0, token1);
 	const isContract = await isContractAddress(address);
@@ -34,7 +32,9 @@ async function getReserves(address: string, token0: ERC20, token1: ERC20): Promi
 	const pairContract = new ethers.Contract(address, UniswapV2PairAbi, ethereumProvider);
 	const { reserve0, reserve1 } = await pairContract.getReserves();
 
-	return token0.address[NETWORK] < token1.address[NETWORK] ? [reserve0, reserve1] : [reserve1, reserve0];
+	const address0 = token0.address[config.NETWORK];
+	const address1 = token1.address[config.NETWORK];
+	return address0 < address1 ? [reserve0, reserve1] : [reserve1, reserve0];
 }
 
 async function isContractAddress(address: string): Promise<boolean> {

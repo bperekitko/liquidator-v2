@@ -6,12 +6,13 @@ import { getPriceOnSushiswap, getPriceOnUniswap } from './uniswap/get-price';
 export const startArbitrationRadar = async (): Promise<void> => {
 	log.info('Arbitration radar started. Monitoring network for interesting opportunities.');
 
-	const uniswapPrice = await getPriceOnUniswap(10, WETH, DAI);
-	const sushiswapPrice = await getPriceOnSushiswap(10, WETH, DAI);
+	const amount = 10;
+	const uniswapPrice = await getPriceOnUniswap(amount, WETH, DAI);
+	const sushiswapPrice = await getPriceOnSushiswap(amount, WETH, DAI);
 
-	const isCheaper = uniswapPrice.lt(sushiswapPrice);
+	const isCheaper = uniswapPrice < sushiswapPrice;
 
-	log.info(`Uniswap price for 10 WETH in DAI is ${uniswapPrice.toString()}`);
-	log.info(`Sushiswap price for 10 WETH in DAI is ${sushiswapPrice.toString()}`);
+	log.info(`Uniswap price for ${amount} WETH in DAI is ${uniswapPrice.toString()}`);
+	log.info(`Sushiswap price for ${amount} WETH in DAI is ${sushiswapPrice.toString()}`);
 	log.info(`Is uniswapCheaper?: ${isCheaper}`);
 };

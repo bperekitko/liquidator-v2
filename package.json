@@ -7,7 +7,7 @@
 		"start:prod": "ENVIRONMENT=prod mkdir -p logs && tsc && node -r dotenv/config dist/app/app.js >> ./logs/liquidator-log ",
 		"start:dev": "ENVIRONMENT=dev nodemon",
 		"hardhat": "hardhat node",
-		"deploy": "hardhat run scripts/deploy.ts",
+		"deploy": "hardhat compile && ts-node -r dotenv/config scripts/deploy.ts",
 		"test": "mocha -r ts-node/register src/**/*.spec.ts"
 	},
 	"repository": {
