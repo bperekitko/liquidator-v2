@@ -3,6 +3,8 @@ export const config = {
 	INFURA_PROJECT_ID: process.env.INFURA_PROJECT_ID,
 	INFURA_PROJECT_SECRET: process.env.INFURA_PROJECT_SECRET,
 	SUSHISWAP_ARBITRAGEUR_ADDRESS: process.env.SUSHISWAP_ARBITRAGEUR_ADDRESS,
+	COINMARKETCAP_API_KEY: process.env.COINMARKETCAP_API_KEY,
 	NETWORK: process.env.NETWORK || 'mainnet',
 	LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+	PORT: process.env.PORT || 3000,
 };

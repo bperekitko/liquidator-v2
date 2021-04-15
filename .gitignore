@@ -1,12 +1,9 @@
-/node_modules
-/logs
+node_modules
+logs
 dist
 .vscode
-artifacts
-cache
 .env
 
-node_modules
 
 #Hardhat files
 cache

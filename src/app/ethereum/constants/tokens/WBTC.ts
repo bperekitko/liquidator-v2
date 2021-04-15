@@ -11,4 +11,5 @@ export const WBTC: ERC20 = {
 	address: address[config.NETWORK],
 	ticker: 'WBTC',
 	decimals: 8,
+	coinmarketcapId: 3717,
 };

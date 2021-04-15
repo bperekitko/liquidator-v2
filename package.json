@@ -8,6 +8,8 @@
 		"start:dev": "ENVIRONMENT=dev nodemon",
 		"hardhat": "hardhat node",
 		"deploy": "hardhat compile && ts-node -r dotenv/config scripts/deploy.ts",
+		"swap:eth": "ts-node -r dotenv/config scripts/swap-eth-for-token.ts",
+		"check:balance": "ts-node -r dotenv/config scripts/check-balance.ts",
 		"test": "mocha -r ts-node/register src/**/*.spec.ts"
 	},
 	"repository": {
@@ -29,6 +31,7 @@
 		"@types/pino": "^6.3.6",
 		"@typescript-eslint/eslint-plugin": "^4.21.0",
 		"@typescript-eslint/parser": "^4.21.0",
+		"axios": "^0.21.1",
 		"chai": "^4.3.4",
 		"dotenv": "^8.2.0",
 		"eslint": "^7.23.0",

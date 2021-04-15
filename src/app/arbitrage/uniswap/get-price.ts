@@ -1,4 +1,4 @@
-import { BigNumber, FixedNumber } from 'ethers';
+import { BigNumber, ethers, FixedNumber } from 'ethers';
 import { ERC20 } from '../../ethereum/erc20.model';
 import { log } from '../../logger/logger';
 import { calculateAmountIn, calculateAmountOut } from './calculate-amount/calculate-amount';
@@ -13,11 +13,7 @@ export const getPriceOnUniswap = async (amount: number, input: ERC20, output: ER
 		return FixedNumber.from(0);
 	}
 
-	log.debug(`Uniswap ${input.ticker} reserve: ${inputReserve}.`);
-	log.debug(`Uniswap ${output.ticker} reserve: ${outputReserve}.`);
-
-	const amountMultiplier = BigNumber.from(10).pow(input.decimals);
-	const amountOut = BigNumber.from(amount).mul(amountMultiplier);
+	const amountOut = ethers.utils.parseUnits(amount.toString(), input.decimals);
 
 	const amountIn = calculateAmountIn(amountOut, BigNumber.from(outputReserve), BigNumber.from(inputReserve));
 
@@ -33,11 +29,7 @@ export const getPriceOnSushiswap = async (amount: number, input: ERC20, output: 
 		return FixedNumber.from(0);
 	}
 
-	log.debug(`Sushiswap ${input.ticker} reserve: ${inputReserve}.`);
-	log.debug(`Sushiswap ${output.ticker} reserve: ${outputReserve}.`);
-
-	const amountMultiplier = BigNumber.from(10).pow(input.decimals);
-	const amountIn = BigNumber.from(amount).mul(amountMultiplier);
+	const amountIn = ethers.utils.parseUnits(amount.toString(), input.decimals);
 
 	const amountOut = calculateAmountOut(amountIn, BigNumber.from(inputReserve), BigNumber.from(outputReserve));
 

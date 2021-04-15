@@ -1,17 +1,16 @@
-import express from 'express';
+import { DAI } from './ethereum/constants/tokens/DAI';
+import { USDC } from './ethereum/constants/tokens/USDC';
+import { WBTC } from './ethereum/constants/tokens/WBTC';
+import { WETH } from './ethereum/constants/tokens/WETH';
 import { log } from './logger/logger';
-import { startArbitrationRadar } from './arbitrage/arbitration-radar';
+import { initMonitoring } from './monitoring';
+import { startServer } from './server';
 
 log.info('Starting the application!');
 
-const app = express();
-const port = 3000;
-
-app.get('/', (req, res) => {
-  startArbitrationRadar();
-  res.send('The app is working just fine!');
-});
-
-app.listen(port, () => {
-  log.info(`Server is listening on port: ${port}`);
-});
+initMonitoring([DAI, USDC, WETH, WBTC])
+	.catch((error) => {
+		log.error(error, 'Error while initializing monitoring!');
+		process.exit(1);
+	})
+	.then(() => startServer());

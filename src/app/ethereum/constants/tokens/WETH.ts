@@ -11,4 +11,5 @@ export const WETH: ERC20 = {
 	address: address[config.NETWORK],
 	ticker: 'WETH',
 	decimals: 18,
+	coinmarketcapId: 2396,
 };

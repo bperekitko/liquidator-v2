@@ -11,4 +11,5 @@ export const DAI: ERC20 = {
 	address: address[config.NETWORK],
 	ticker: 'DAI',
 	decimals: 18,
+	coinmarketcapId: 4943,
 };

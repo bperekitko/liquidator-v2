@@ -11,4 +11,5 @@ export const USDC: ERC20 = {
 	address: address[config.NETWORK],
 	ticker: 'USDC',
 	decimals: 6,
+	coinmarketcapId: 3408,
 };
