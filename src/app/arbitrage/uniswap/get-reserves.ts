@@ -3,8 +3,10 @@ import { config } from '../../../config/config';
 import UniswapV2PairAbi from '../../ethereum/abi/UniswapV2Pair.json';
 import { ERC20 } from '../../ethereum/erc20.model';
 import { ethereumProvider } from '../../ethereum/ethereum-provider';
-import { log } from '../../logger/logger';
+import { Logger } from '../../logger/logger';
 import { computeSushiswapPairAddress, computeUniswapPairAddress } from './compute-pair-address/compute-pair-address';
+
+const log = new Logger('RESERVES FETCHER');
 
 export async function getUniswapReserves(token0: ERC20, token1: ERC20): Promise<string[]> {
 	const address = computeUniswapPairAddress(token0, token1);

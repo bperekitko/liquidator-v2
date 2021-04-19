@@ -3,10 +3,18 @@ import { EthereumAddress } from '../../ethereum-address.model';
 
 const factoryAddresses: EthereumAddress = {
 	mainnet: '0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac',
+	ropsten: '0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac',
+	kovan: '0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac',
+	goerli: '0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac',
+	rinkeby: '0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac',
 	local: '0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac',
 };
 const routerAddresses: EthereumAddress = {
 	mainnet: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
+	ropsten: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
+	kovan: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
+	goerli: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
+	rinkeby: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
 	local: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
 };
 

@@ -11,4 +11,32 @@ const options = {
 	},
 };
 
-export const log = pino(options);
+export class Logger {
+	logger: pino.Logger;
+	name: string;
+
+	constructor(name: string) {
+		this.logger = pino(options);
+		this.name = name;
+	}
+
+	info(msg: string): void {
+		this.logger.info(`[${this.name}]: ${msg}`);
+	}
+
+	warn(msg: string): void {
+		this.logger.warn(`[${this.name}]: ${msg}`);
+	}
+
+	error(msg: string, error?: Error): void {
+		if (error) {
+			this.logger.error(error, `[${this.name}]: ${msg}`);
+		} else {
+			this.logger.error(msg);
+		}
+	}
+
+	debug(msg: string): void {
+		this.logger.debug(`[${this.name}]: ${msg}`);
+	}
+}

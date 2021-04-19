@@ -1,12 +1,12 @@
 import { BigNumber, ethers, FixedNumber } from 'ethers';
 import { ERC20 } from '../../ethereum/erc20.model';
-import { log } from '../../logger/logger';
+import { Logger } from '../../logger/logger';
 import { calculateAmountIn, calculateAmountOut } from './calculate-amount/calculate-amount';
 import { getSushiswapReserves, getUniswapReserves } from './get-reserves';
 
-export const getPriceOnUniswap = async (amount: number, input: ERC20, output: ERC20): Promise<FixedNumber> => {
-	log.debug(`Getting price on Uniswap for ${input.ticker}/${output.ticker}`);
+const log = new Logger('PRICE FETCHER');
 
+export const getPriceOnUniswap = async (amount: number, input: ERC20, output: ERC20): Promise<FixedNumber> => {
 	const [inputReserve, outputReserve] = await getUniswapReserves(input, output);
 
 	if (!inputReserve || !outputReserve) {
@@ -14,15 +14,18 @@ export const getPriceOnUniswap = async (amount: number, input: ERC20, output: ER
 	}
 
 	const amountOut = ethers.utils.parseUnits(amount.toString(), input.decimals);
-
 	const amountIn = calculateAmountIn(amountOut, BigNumber.from(outputReserve), BigNumber.from(inputReserve));
 
-	return FixedNumber.from(amountIn).divUnsafe(FixedNumber.from(amountOut));
+	const amountInInUnits = ethers.utils.formatUnits(amountIn.toString(), output.decimals);
+
+	const price = FixedNumber.from(amountInInUnits).divUnsafe(FixedNumber.from(amount));
+
+	log.debug(`Uniswap ${input.ticker} price: ${price.toString()} ${output.ticker}`);
+
+	return price;
 };
 
 export const getPriceOnSushiswap = async (amount: number, input: ERC20, output: ERC20): Promise<FixedNumber> => {
-	log.debug(`Getting price on Sushiswap for ${input.ticker}/${output.ticker}.`);
-
 	const [inputReserve, outputReserve] = await getSushiswapReserves(input, output);
 
 	if (!inputReserve || !outputReserve) {
@@ -30,8 +33,12 @@ export const getPriceOnSushiswap = async (amount: number, input: ERC20, output: 
 	}
 
 	const amountIn = ethers.utils.parseUnits(amount.toString(), input.decimals);
-
 	const amountOut = calculateAmountOut(amountIn, BigNumber.from(inputReserve), BigNumber.from(outputReserve));
+	const amountOutInUnits = ethers.utils.formatUnits(amountOut.toString(), output.decimals);
 
-	return FixedNumber.from(amountOut).divUnsafe(FixedNumber.from(amountIn));
+	const price = FixedNumber.from(amountOutInUnits).divUnsafe(FixedNumber.from(amount));
+
+	log.debug(`Sushiswap ${input.ticker} price: ${price.toString()} ${output.ticker}`);
+
+	return price;
 };

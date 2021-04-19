@@ -1,11 +1,13 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { ERC20 } from '../../ethereum/erc20.model';
-import { log } from '../../logger/logger';
+import { Logger } from '../../logger/logger';
 import { getPriceInEthFor } from './coinmarketcap.service';
 import { EthPriceFeeds } from './eth-price-feeds.model';
 
 const COINMARKETCAP_URL = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
 const UPDATE_PRICE_FEEDS_FREQUENCY_IN_MILIS = 5 * 60 * 1000;
+
+const log = new Logger('PRICE ORACLE');
 
 let priceFeeds: EthPriceFeeds;
 let interval: NodeJS.Timeout;
@@ -23,7 +25,7 @@ async function start(tokens: ERC20[]): Promise<void> {
 
 function schedulePriceFeedsUpdates(tokens: ERC20[]) {
 	interval = setInterval(
-		() => updatePriceFeeds(tokens).catch((error) => log.error(error, 'Error while updating price feeds!')),
+		() => updatePriceFeeds(tokens).catch((error) => log.error('Error while updating price feeds!', error)),
 		UPDATE_PRICE_FEEDS_FREQUENCY_IN_MILIS
 	);
 }

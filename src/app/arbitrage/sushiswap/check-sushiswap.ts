@@ -3,12 +3,14 @@ import { TransactionReceipt } from '@ethersproject/providers';
 import { ethers } from 'ethers';
 import { config } from '../../../config/config';
 import { ERC20 } from '../../ethereum/erc20.model';
-import { log } from '../../logger/logger';
+import { Logger } from '../../logger/logger';
 import { estimateGasForArbitrage, executeArbitrage } from '../executor/arbitrage';
-import { isProfitableTrade } from '../radar/calculate-profitability';
+import { calculateProfitability } from '../radar/calculate-profitability';
 import { getPriceOnSushiswap } from '../uniswap/get-price';
 
 let isMining = false;
+
+const log = new Logger('SUSHISWAP');
 
 export async function checkSushiswapForOpportunity(
 	basePrice: FixedNumber,
@@ -21,46 +23,75 @@ export async function checkSushiswapForOpportunity(
 		return;
 	}
 
-	log.debug(`Checking Sushiswap for ${inputToken.ticker}/${outputToken.ticker} opportunity.`);
 	const sushiswapPrice = await getPriceOnSushiswap(amount, inputToken, outputToken);
 
-	if (canPerformArbitrage(basePrice, sushiswapPrice)) {
-		isMining = true;
-		log.info(`Found price discrepancies for ${inputToken.ticker}/${outputToken.ticker}!`);
-		log.info(`Calculating profitability of trade.`);
+	if (isTargetPriceHigher(basePrice, sushiswapPrice)) {
+		log.info(`Found price discrepancies for ${amount} ${inputToken.ticker}/${outputToken.ticker}!`);
 
-		const gasUsed = await estimateGasForArbitrage(
-			inputToken,
-			outputToken,
-			amount,
-			config.SUSHISWAP_ARBITRAGEUR_ADDRESS,
-			ethers.utils.defaultAbiCoder.encode(['uint'], [1])
-		);
-
-		const isProfitable = isProfitableTrade(amount, basePrice, sushiswapPrice, outputToken, gasUsed);
+		const isProfitable = await isTradeProfitable(inputToken, outputToken, amount, basePrice, sushiswapPrice);
 
 		if (isProfitable) {
-			log.info(`Opportunity is profitable. Performing arbitrage for ${amount} ${inputToken.ticker}!`);
-			const transaction = await executeArbitrage(
-				inputToken,
-				outputToken,
-				amount,
-				config.SUSHISWAP_ARBITRAGEUR_ADDRESS,
-				ethers.utils.defaultAbiCoder.encode(['uint'], [1])
-			);
-
-			log.info(`Transaction sent! Hash: ${transaction.hash}.`);
-			const receipt: TransactionReceipt = await transaction.wait();
-			log.info(`Success! Transaction ${receipt.transactionHash} mined on block ${receipt.blockNumber}.`);
-			log.debug(`Transaction ${receipt.transactionHash} used ${receipt.gasUsed} gas.`);
+			await performArbitrage(inputToken, outputToken, amount);
 		}
-		isMining = false;
 	} else {
 		log.debug(`Opportunity for ${inputToken.ticker}/${outputToken.ticker} on Sushiswap not found.`);
 	}
 }
 
-function canPerformArbitrage(basePrice: FixedNumber, sushiswapPrice: FixedNumber) {
+async function performArbitrage(inputToken: ERC20, outputToken: ERC20, amount: number) {
+	log.info(`Performing arbitrage of ${amount} ${inputToken.ticker}/${outputToken.ticker}!`);
+
+	const transaction = await executeArbitrage(
+		inputToken,
+		outputToken,
+		amount,
+		config.SUSHISWAP_ARBITRAGEUR_ADDRESS,
+		ethers.utils.defaultAbiCoder.encode(['uint'], [1])
+	);
+
+	isMining = true;
+	log.info(`Transaction sent! Hash: ${transaction.hash}.`);
+	const receipt: TransactionReceipt = await transaction.wait();
+	log.info(`Success! Transaction ${receipt.transactionHash} mined on block ${receipt.blockNumber}.`);
+	log.debug(`Transaction ${receipt.transactionHash} used ${receipt.gasUsed} gas.`);
+	isMining = false;
+}
+
+async function isTradeProfitable(
+	inputToken: ERC20,
+	outputToken: ERC20,
+	amount: number,
+	basePrice: FixedNumber,
+	sushiswapPrice: FixedNumber
+): Promise<boolean> {
+	const gasUsed = await estimateGasForArbitrage(
+		inputToken,
+		outputToken,
+		amount,
+		config.SUSHISWAP_ARBITRAGEUR_ADDRESS,
+		ethers.utils.defaultAbiCoder.encode(['uint'], [1])
+	);
+
+	log.debug(`Estimated gas usage: ${gasUsed.toString()}`);
+
+	const { isProfitable, estimatedProfit } = calculateProfitability(
+		amount,
+		basePrice,
+		sushiswapPrice,
+		outputToken,
+		gasUsed
+	);
+
+	log.info(`Estimated profit: ${estimatedProfit.toString()} ${outputToken.ticker}`);
+
+	if (!isProfitable) {
+		log.info(`Arbitrage of ${amount} ${inputToken.ticker}/${outputToken.ticker} is not profitable due to gas costs.`);
+	}
+
+	return isProfitable;
+}
+
+function isTargetPriceHigher(basePrice: FixedNumber, sushiswapPrice: FixedNumber) {
 	return (
 		!basePrice.isNegative() &&
 		!basePrice.isZero() &&

@@ -20,7 +20,7 @@ export async function deploySushiswapArbitrageur(): Promise<void> {
 	const gasPrice = BigNumber.from(100).mul(BigNumber.from(10).pow(9));
 	const txCost = FixedNumber.from(gasLimit.mul(gasPrice)).divUnsafe(FixedNumber.from(BigNumber.from(10).pow(18)));
 
-	console.log(`Deploying contract took ${gasLimit} gas, whith cost of ${txCost} ETH`);
+	console.log(`Deploying contract took ${gasLimit} gas (${txCost} ETH)`);
 	updateEnvFile(arbitrageur.address);
 }
 

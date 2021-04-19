@@ -2,19 +2,19 @@ import { ethers } from 'ethers';
 import express from 'express';
 import { config } from '../config/config';
 import { PriceOracle } from './arbitrage/oracle/price-oracle';
-import { startArbitrationRadar } from './arbitrage/radar/arbitration-radar';
 import { DAI } from './ethereum/constants/tokens/DAI';
 import { USDC } from './ethereum/constants/tokens/USDC';
 import { WBTC } from './ethereum/constants/tokens/WBTC';
 import { WETH } from './ethereum/constants/tokens/WETH';
-import { log } from './logger/logger';
+import { Logger } from './logger/logger';
+
+const log = new Logger('SERVER');
 
 export function startServer(): void {
 	log.info('Starting the server.');
 	const app = express();
 
 	app.get('/arbitrage', (req, res) => {
-		startArbitrationRadar();
 		res.send('Arbitration radar started!');
 	});
 
