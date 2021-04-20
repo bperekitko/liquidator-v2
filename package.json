@@ -4,8 +4,8 @@
 	"description": "",
 	"main": "app.js",
 	"scripts": {
-		"start:prod": "ENVIRONMENT=prod mkdir -p logs && tsc && node -r dotenv/config dist/app/app.js >> ./logs/liquidator-log ",
-		"start:dev": "ENVIRONMENT=dev nodemon",
+		"start:prod": "mkdir -p logs && tsc && node -r dotenv/config dist/app/app.js >> ./logs/liquidator-log ",
+		"start:dev": "nodemon",
 		"hardhat": "hardhat node",
 		"deploy": "hardhat compile && ts-node -r dotenv/config scripts/deploy.ts",
 		"swap:eth": "ts-node -r dotenv/config scripts/swap-eth-for-token.ts",

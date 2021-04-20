@@ -4,6 +4,7 @@ import { EthereumAddress } from '../../ethereum-address.model';
 
 const address: EthereumAddress = {
 	mainnet: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+	rinkeby: '0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea',
 	local: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
 };
 

@@ -1,0 +1,13 @@
+---
+- hosts: liquidator-server
+  tasks:
+    - name: Check environment variables
+      include_tasks: tasks/check-required-variables.yml
+    - name: Prepare environment
+      include_tasks: tasks/prepare-environment.yml
+    - name: Install the Liquidator app
+      include_tasks: tasks/install-liquidator.yml
+    # - name: Start the app
+    #   shell: npm run start:prod
+    #   args:
+    #     chdir: '{{ ansible_env.HOME }}/liquidator'

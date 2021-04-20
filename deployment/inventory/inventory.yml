@@ -1,0 +1,13 @@
+---
+all:
+  hosts:
+    liquidator-server:
+      ansible_user: hackerman
+      nvm_home: '{{ ansible_env.HOME }}/.nvm'
+      app_home: '{{ ansible_env.HOME }}/liquidator'
+      liquidator_signer_private_key:
+      liquidator_infura_project_id:
+      liquidator_infura_project_secret:
+      liquidator_alchemy_api_key:
+      liquidator_coinmarketcap_api_key:
+      liquidator_sushiswap_arbitrageur_address:

@@ -1,0 +1,12 @@
+---
+- name: Check environment variables
+  fail:
+    msg: 'Variable {{ item }} is not defined'
+  when: vars[item] is not defined or vars[item] == None or vars[item] | trim | length == 0
+  with_items:
+    - liquidator_signer_private_key
+    - liquidator_infura_project_id
+    - liquidator_infura_project_secret
+    - liquidator_alchemy_api_key
+    - liquidator_coinmarketcap_api_key
+    - liquidator_sushiswap_arbitrageur_address

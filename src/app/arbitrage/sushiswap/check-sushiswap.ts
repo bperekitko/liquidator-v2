@@ -1,10 +1,6 @@
-import { FixedNumber } from '@ethersproject/bignumber';
-import { TransactionReceipt } from '@ethersproject/providers';
-import { ethers } from 'ethers';
-import { config } from '../../../config/config';
+import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
 import { ERC20 } from '../../ethereum/erc20.model';
 import { Logger } from '../../logger/logger';
-import { estimateGasForArbitrage, executeArbitrage } from '../executor/arbitrage';
 import { calculateProfitability } from '../radar/calculate-profitability';
 import { getPriceOnSushiswap } from '../uniswap/get-price';
 
@@ -41,20 +37,20 @@ export async function checkSushiswapForOpportunity(
 async function performArbitrage(inputToken: ERC20, outputToken: ERC20, amount: number) {
 	log.info(`Performing arbitrage of ${amount} ${inputToken.ticker}/${outputToken.ticker}!`);
 
-	const transaction = await executeArbitrage(
-		inputToken,
-		outputToken,
-		amount,
-		config.SUSHISWAP_ARBITRAGEUR_ADDRESS,
-		ethers.utils.defaultAbiCoder.encode(['uint'], [1])
-	);
+	// const transaction = await executeArbitrage(
+	// 	inputToken,
+	// 	outputToken,
+	// 	amount,
+	// 	config.SUSHISWAP_ARBITRAGEUR_ADDRESS,
+	// 	ethers.utils.defaultAbiCoder.encode(['uint'], [1])
+	// );
 
-	isMining = true;
-	log.info(`Transaction sent! Hash: ${transaction.hash}.`);
-	const receipt: TransactionReceipt = await transaction.wait();
-	log.info(`Success! Transaction ${receipt.transactionHash} mined on block ${receipt.blockNumber}.`);
-	log.debug(`Transaction ${receipt.transactionHash} used ${receipt.gasUsed} gas.`);
-	isMining = false;
+	// isMining = true;
+	// log.info(`Transaction sent! Hash: ${transaction.hash}.`);
+	// const receipt: TransactionReceipt = await transaction.wait();
+	// log.info(`Success! Transaction ${receipt.transactionHash} mined on block ${receipt.blockNumber}.`);
+	// log.debug(`Transaction ${receipt.transactionHash} used ${receipt.gasUsed} gas.`);
+	// isMining = false;
 }
 
 async function isTradeProfitable(
@@ -64,13 +60,15 @@ async function isTradeProfitable(
 	basePrice: FixedNumber,
 	sushiswapPrice: FixedNumber
 ): Promise<boolean> {
-	const gasUsed = await estimateGasForArbitrage(
-		inputToken,
-		outputToken,
-		amount,
-		config.SUSHISWAP_ARBITRAGEUR_ADDRESS,
-		ethers.utils.defaultAbiCoder.encode(['uint'], [1])
-	);
+	// const gasUsed = await estimateGasForArbitrage(
+	// 	inputToken,
+	// 	outputToken,
+	// 	amount,
+	// 	config.SUSHISWAP_ARBITRAGEUR_ADDRESS,
+	// 	ethers.utils.defaultAbiCoder.encode(['uint'], [1])
+	// );
+
+	const gasUsed = BigNumber.from('235000');
 
 	log.debug(`Estimated gas usage: ${gasUsed.toString()}`);
 

@@ -8,3 +8,6 @@ dist
 #Hardhat files
 cache
 artifacts
+
+#Dev inventory
+deployment/inventory/dev.yml

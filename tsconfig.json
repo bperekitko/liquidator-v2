@@ -12,6 +12,7 @@
         "es2015",
     ],
     "exclude": [
+        "scripts",
         "./src/**/*.spec.ts",
         "node_modules",
         "./dist/",

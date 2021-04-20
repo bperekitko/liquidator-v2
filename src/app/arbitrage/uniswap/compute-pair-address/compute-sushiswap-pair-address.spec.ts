@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { DAI, USDC, WBTC, WETH } from '../../../ethereum/constants/tokens';
+import { DAI } from '../../../ethereum/constants/tokens/DAI';
+import { USDC } from '../../../ethereum/constants/tokens/USDC';
+import { WBTC } from '../../../ethereum/constants/tokens/WBTC';
+import { WETH } from '../../../ethereum/constants/tokens/WETH';
 import { computeSushiswapPairAddress } from './compute-pair-address';
 
 describe('Compute Sushiswap pair address', function () {
