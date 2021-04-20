@@ -2,7 +2,6 @@
 all:
   hosts:
     liquidator-server:
-      ansible_user: hackerman
       nvm_home: '{{ ansible_env.HOME }}/.nvm'
       app_home: '{{ ansible_env.HOME }}/liquidator'
       liquidator_signer_private_key:
