@@ -12,3 +12,8 @@
   template:
     src: .env.j2
     dest: '{{ app_home }}/.env'
+- name: Compile the source code
+  shell: '. {{ nvm_home }}/nvm.sh && npm run compile'
+  args:
+    chdir: '{{ app_home }}'
+    executable: /bin/bash

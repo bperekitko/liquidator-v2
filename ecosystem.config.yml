@@ -1,0 +1,5 @@
+apps:
+  - script: dist/app/app.js
+    name: 'liquidator'
+    node_args: '-r dotenv/config'
+    log_file: 'logs/liquidator.log'

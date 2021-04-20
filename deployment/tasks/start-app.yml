@@ -1,0 +1,7 @@
+---
+- name: Stop the Liquidator app
+  shell: 'pm2 stop all'
+- name: Start the Liquidator app
+  shell: 'pm2 start ecosystem.config.yml'
+  args:
+    chdir: '{{ app_home }}'

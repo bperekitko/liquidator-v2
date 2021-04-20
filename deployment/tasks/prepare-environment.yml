@@ -18,3 +18,7 @@
   args:
     creates: '{{ nvm_home }}/versions/node'
     executable: /bin/bash
+- name: Ensure pm2 is installed
+  shell: '. {{ nvm_home }}/nvm.sh && npm install pm2 -g'
+  args:
+    executable: /bin/bash
