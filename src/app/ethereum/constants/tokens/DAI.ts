@@ -13,4 +13,5 @@ export const DAI: ERC20 = {
 	ticker: 'DAI',
 	decimals: 18,
 	coinmarketcapId: 4943,
+	tradeAmount: 50000,
 };

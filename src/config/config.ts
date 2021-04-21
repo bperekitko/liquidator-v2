@@ -7,4 +7,6 @@ export const config = {
 	NETWORK: process.env.NETWORK || 'mainnet',
 	LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 	PORT: process.env.PORT || 3000,
+	INPUT_TOKENS: process.env.INPUT_TOKENS.split(',').map((ticker) => ticker.trim()),
+	OUTPUT_TOKENS: process.env.OUTPUT_TOKENS.split(',').map((ticker) => ticker.trim()),
 };

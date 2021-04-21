@@ -5,14 +5,17 @@ import { ERC20 } from '../../ethereum/erc20.model';
 import { ethereumSigner } from '../../ethereum/ethereum-signer';
 import { GasPriceProvider } from '../../ethereum/gas-price-provider';
 import { computeUniswapPairAddress } from '../uniswap/compute-pair-address/compute-pair-address';
+import { TradeablePair } from '../uniswap/tradeable-pair/tradeable-pair.model';
 
 export function executeArbitrage(
-	inputToken: ERC20,
-	outputToken: ERC20,
-	amount: number,
+	pair: TradeablePair,
 	arbitrageContractAddress: string,
 	encodedData: string
 ): Promise<TransactionResponse> {
+	const amount = pair.getTradeAmount();
+	const inputToken = pair.getInputToken();
+	const outputToken = pair.getOutputToken();
+
 	const { amount0Out, amount1Out } = getAmountsOut(amount, inputToken, outputToken);
 	const pairContract = getPairContract(inputToken, outputToken);
 	const overrides = { gasPrice: GasPriceProvider.getFastestGasPrice().toString() };
@@ -20,12 +23,14 @@ export function executeArbitrage(
 }
 
 export function estimateGasForArbitrage(
-	inputToken: ERC20,
-	outputToken: ERC20,
-	amount: number,
+	pair: TradeablePair,
 	arbitrageContractAddress: string,
 	encodedData: string
 ): Promise<BigNumber> {
+	const amount = pair.getTradeAmount();
+	const inputToken = pair.getInputToken();
+	const outputToken = pair.getOutputToken();
+
 	const { amount0Out, amount1Out } = getAmountsOut(amount, inputToken, outputToken);
 	const pairContract = getPairContract(inputToken, outputToken);
 	const overrides = { gasPrice: GasPriceProvider.getFastestGasPrice().toString() };

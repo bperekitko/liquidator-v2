@@ -13,4 +13,5 @@ export const WETH: ERC20 = {
 	ticker: 'WETH',
 	decimals: 18,
 	coinmarketcapId: 2396,
+	tradeAmount: 25,
 };

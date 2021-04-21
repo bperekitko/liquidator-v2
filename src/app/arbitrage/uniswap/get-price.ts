@@ -1,12 +1,16 @@
 import { BigNumber, ethers, FixedNumber } from 'ethers';
-import { ERC20 } from '../../ethereum/erc20.model';
 import { Logger } from '../../logger/logger';
 import { calculateAmountIn, calculateAmountOut } from './calculate-amount/calculate-amount';
 import { getSushiswapReserves, getUniswapReserves } from './get-reserves';
+import { TradeablePair } from './tradeable-pair/tradeable-pair.model';
 
 const log = new Logger('PRICE FETCHER');
 
-export const getPriceOnUniswap = async (amount: number, input: ERC20, output: ERC20): Promise<FixedNumber> => {
+export const getPriceOnUniswap = async (pair: TradeablePair): Promise<FixedNumber> => {
+	const input = pair.getInputToken();
+	const output = pair.getOutputToken();
+	const amount = pair.getTradeAmount();
+
 	const [inputReserve, outputReserve] = await getUniswapReserves(input, output);
 
 	if (!inputReserve || !outputReserve) {
@@ -20,12 +24,15 @@ export const getPriceOnUniswap = async (amount: number, input: ERC20, output: ER
 
 	const price = FixedNumber.from(amountInInUnits).divUnsafe(FixedNumber.from(amount));
 
-	log.debug(`Uniswap ${input.ticker} price: ${price.toString()} ${output.ticker}`);
+	log.debug(`Uniswap ${pair.toString()} price: ${price.toString()}`);
 
 	return price;
 };
 
-export const getPriceOnSushiswap = async (amount: number, input: ERC20, output: ERC20): Promise<FixedNumber> => {
+export const getPriceOnSushiswap = async (pair: TradeablePair): Promise<FixedNumber> => {
+	const input = pair.getInputToken();
+	const output = pair.getOutputToken();
+	const amount = pair.getTradeAmount();
 	const [inputReserve, outputReserve] = await getSushiswapReserves(input, output);
 
 	if (!inputReserve || !outputReserve) {
@@ -38,7 +45,7 @@ export const getPriceOnSushiswap = async (amount: number, input: ERC20, output: 
 
 	const price = FixedNumber.from(amountOutInUnits).divUnsafe(FixedNumber.from(amount));
 
-	log.debug(`Sushiswap ${input.ticker} price: ${price.toString()} ${output.ticker}`);
+	log.debug(`Sushiswap ${pair.toString()} price: ${price.toString()}`);
 
 	return price;
 };

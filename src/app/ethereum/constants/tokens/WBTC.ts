@@ -12,4 +12,5 @@ export const WBTC: ERC20 = {
 	ticker: 'WBTC',
 	decimals: 8,
 	coinmarketcapId: 3717,
+	tradeAmount: 1,
 };

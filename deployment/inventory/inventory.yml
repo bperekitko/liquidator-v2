@@ -4,6 +4,8 @@ all:
     liquidator-server:
       nvm_home: '{{ ansible_env.HOME }}/.nvm'
       app_home: '{{ ansible_env.HOME }}/liquidator'
+      liquidator_input_tokens: WETH
+      liquidator_output_tokens: DAI, WBTC
       liquidator_signer_private_key:
       liquidator_infura_project_id:
       liquidator_infura_project_secret:

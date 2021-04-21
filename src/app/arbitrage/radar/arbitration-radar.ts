@@ -1,49 +1,50 @@
-import { DAI } from '../../ethereum/constants/tokens/DAI';
-import { WETH } from '../../ethereum/constants/tokens/WETH';
-import { ERC20 } from '../../ethereum/erc20.model';
 import { Logger } from '../../logger/logger';
 import { checkSushiswapForOpportunity } from '../sushiswap/check-sushiswap';
 import { getPriceOnUniswap } from '../uniswap/get-price';
+import { getUniswapTradeablePairs } from '../uniswap/tradeable-pair/get-tradeable-pairs';
+import { TradeablePair } from '../uniswap/tradeable-pair/tradeable-pair.model';
 
 const SCANNING_FRQUENCY_IN_MILIS = 10 * 1000;
 
+const uniswapTradeablePairsPromise = getUniswapTradeablePairs();
 const log = new Logger('ARBITRATION RADAR');
 
+const scans: { [pairId: string]: boolean } = {};
+
 let interval: NodeJS.Timeout;
-let isScanInProgress = false;
 
-async function start(tokens: ERC20[]): Promise<void> {
+async function start(): Promise<void> {
 	log.info('Arbitration radar started. Monitoring network for interesting opportunities.');
+	const tradablePairs = await uniswapTradeablePairsPromise;
 
-	const amount = 10;
-	const inputToken = WETH;
-	const outputToken = tokens.find((t) => t.ticker === DAI.ticker);
-	scheduleScanning(amount, inputToken, outputToken);
+	tradablePairs.forEach((pair) => scheduleScanning(pair));
 }
 
 function stop(): void {
 	clearInterval(interval);
 }
 
-function scheduleScanning(amount: number, inputToken: ERC20, outputToken: ERC20) {
+function scheduleScanning(pair: TradeablePair) {
 	interval = setInterval(() => {
-		if (isScanInProgress) {
-			log.debug(`Scan already in progress, skipping.`);
+		if (isScanInProgress(pair)) {
+			log.debug(`Scan for ${pair.toString()} already in progress, skipping.`);
 		} else {
-			scanForArbitrage(amount, inputToken, outputToken);
+			scanForArbitrage(pair);
 		}
 	}, SCANNING_FRQUENCY_IN_MILIS);
 }
 
-function scanForArbitrage(amount: number, inputToken: ERC20, outputToken: ERC20) {
-	log.debug(`Performing scan for arbitrage opportunities.`);
-	isScanInProgress = true;
-	getPriceOnUniswap(amount, inputToken, outputToken)
-		.then((price) => checkSushiswapForOpportunity(price, amount, inputToken, outputToken))
-		.catch((error) =>
-			log.error(`Error while looking for opportunities for ${inputToken.ticker}/${outputToken.ticker}`, error)
-		)
-		.finally(() => (isScanInProgress = false));
+function scanForArbitrage(pair: TradeablePair) {
+	log.debug(`Performing scan for ${pair.toString()} arbitrage opportunities.`);
+	scans[pair.toString()] = true;
+	getPriceOnUniswap(pair)
+		.then((price) => checkSushiswapForOpportunity(price, pair))
+		.catch((error) => log.error(`Error while looking for opportunities for ${pair.toString()}`, error))
+		.finally(() => (scans[pair.toString()] = false));
+}
+
+function isScanInProgress(pair: TradeablePair): boolean {
+	return scans[pair.toString()];
 }
 
 export const ArbitrationRadar = {

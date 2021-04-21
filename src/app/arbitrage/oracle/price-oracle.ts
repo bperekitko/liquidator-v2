@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { ERC20 } from '../../ethereum/erc20.model';
+import { SUPPORTED_TOKENS } from '../../ethereum/supported-tokens';
 import { Logger } from '../../logger/logger';
 import { getPriceInEthFor } from './coinmarketcap.service';
 import { EthPriceFeeds } from './eth-price-feeds.model';
@@ -12,11 +13,11 @@ const log = new Logger('PRICE ORACLE');
 let priceFeeds: EthPriceFeeds;
 let interval: NodeJS.Timeout;
 
-async function start(tokens: ERC20[]): Promise<void> {
+async function start(): Promise<void> {
 	log.info(`Starting the price oracle!`);
 	if (!interval) {
-		await updatePriceFeeds(tokens);
-		schedulePriceFeedsUpdates(tokens);
+		await updatePriceFeeds(SUPPORTED_TOKENS);
+		schedulePriceFeedsUpdates(SUPPORTED_TOKENS);
 		log.info(`Price oracle successfully started.`);
 	} else {
 		log.warn(`Price oracle already started. Skipping initialization.`);

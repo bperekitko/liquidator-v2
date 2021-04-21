@@ -1,42 +1,41 @@
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
-import { ERC20 } from '../../ethereum/erc20.model';
 import { Logger } from '../../logger/logger';
 import { calculateProfitability } from '../radar/calculate-profitability';
 import { getPriceOnSushiswap } from '../uniswap/get-price';
+import { getSushiswapTradeablePairs } from '../uniswap/tradeable-pair/get-tradeable-pairs';
+import { TradeablePair } from '../uniswap/tradeable-pair/tradeable-pair.model';
 
 let isMining = false;
 
 const log = new Logger('SUSHISWAP');
+const sushiswapTradablePairs = getSushiswapTradeablePairs();
 
-export async function checkSushiswapForOpportunity(
-	basePrice: FixedNumber,
-	amount: number,
-	inputToken: ERC20,
-	outputToken: ERC20
-): Promise<void> {
-	if (isMining) {
-		log.debug('Skipping sushiswap check since arbitrage transaction is being mined right now.');
+export async function checkSushiswapForOpportunity(basePrice: FixedNumber, pair: TradeablePair): Promise<void> {
+	const tradablePairs = await sushiswapTradablePairs;
+
+	if (shouldSkipCheck(pair, tradablePairs)) {
 		return;
 	}
 
-	const sushiswapPrice = await getPriceOnSushiswap(amount, inputToken, outputToken);
+	const sushiswapPrice = await getPriceOnSushiswap(pair);
 
 	if (isTargetPriceHigher(basePrice, sushiswapPrice)) {
-		log.info(`Found price discrepancies for ${amount} ${inputToken.ticker}/${outputToken.ticker}!`);
+		log.info(`Found price discrepancies for ${pair.getTradeAmount()} ${pair.toString()}!`);
 
-		const isProfitable = await isTradeProfitable(inputToken, outputToken, amount, basePrice, sushiswapPrice);
+		const isProfitable = await isTradeProfitable(pair, basePrice, sushiswapPrice);
 
 		if (isProfitable) {
-			await performArbitrage(inputToken, outputToken, amount);
+			await performArbitrage(pair);
 		}
 	} else {
-		log.debug(`Opportunity for ${inputToken.ticker}/${outputToken.ticker} on Sushiswap not found.`);
+		log.debug(`Opportunity for ${pair.toString()} on Sushiswap not found.`);
 	}
 }
 
-async function performArbitrage(inputToken: ERC20, outputToken: ERC20, amount: number) {
-	log.info(`Performing arbitrage of ${amount} ${inputToken.ticker}/${outputToken.ticker}!`);
-
+async function performArbitrage(pair: TradeablePair) {
+	isMining = true;
+	log.info(`Performing arbitrage of ${pair.getTradeAmount()} ${pair.toString()}!`);
+	isMining = false;
 	// const transaction = await executeArbitrage(
 	// 	inputToken,
 	// 	outputToken,
@@ -54,9 +53,7 @@ async function performArbitrage(inputToken: ERC20, outputToken: ERC20, amount: n
 }
 
 async function isTradeProfitable(
-	inputToken: ERC20,
-	outputToken: ERC20,
-	amount: number,
+	pair: TradeablePair,
 	basePrice: FixedNumber,
 	sushiswapPrice: FixedNumber
 ): Promise<boolean> {
@@ -73,17 +70,17 @@ async function isTradeProfitable(
 	log.debug(`Estimated gas usage: ${gasUsed.toString()}`);
 
 	const { isProfitable, estimatedProfit } = calculateProfitability(
-		amount,
+		pair.getTradeAmount(),
 		basePrice,
 		sushiswapPrice,
-		outputToken,
+		pair.getOutputToken(),
 		gasUsed
 	);
 
-	log.info(`Estimated profit: ${estimatedProfit.toString()} ${outputToken.ticker}`);
+	log.info(`Estimated profit: ${estimatedProfit.toString()} ${pair.getOutputToken().ticker}`);
 
 	if (!isProfitable) {
-		log.info(`Arbitrage of ${amount} ${inputToken.ticker}/${outputToken.ticker} is not profitable due to gas costs.`);
+		log.info(`Arbitrage of ${pair.getTradeAmount()} ${pair.toString()} is not profitable due to gas costs.`);
 	}
 
 	return isProfitable;
@@ -97,4 +94,18 @@ function isTargetPriceHigher(basePrice: FixedNumber, sushiswapPrice: FixedNumber
 		!sushiswapPrice.isZero() &&
 		basePrice < sushiswapPrice
 	);
+}
+function shouldSkipCheck(pair: TradeablePair, tradablePairs: TradeablePair[]): boolean {
+	if (isMining) {
+		log.debug('Skipping sushiswap check since arbitrage transaction is being mined right now.');
+		return true;
+	}
+	const pairDoesNotExist = !tradablePairs.some((p) => p.equals(pair));
+
+	if (pairDoesNotExist) {
+		log.warn(`Pair ${pair.toString()} does not exits on Sushiswap, skipping check.`);
+		return true;
+	}
+
+	return false;
 }

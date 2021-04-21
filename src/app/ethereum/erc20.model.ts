@@ -3,4 +3,5 @@ export interface ERC20 {
 	ticker: string;
 	decimals: number;
 	coinmarketcapId: number;
+	tradeAmount: number;
 }

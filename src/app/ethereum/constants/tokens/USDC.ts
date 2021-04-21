@@ -12,4 +12,5 @@ export const USDC: ERC20 = {
 	ticker: 'USDC',
 	decimals: 6,
 	coinmarketcapId: 3408,
+	tradeAmount: 50000,
 };
