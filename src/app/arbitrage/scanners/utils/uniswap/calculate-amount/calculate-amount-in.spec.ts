@@ -31,7 +31,7 @@ const amountInTestData = [
 
 describe('Calculate amount', function () {
 	amountInTestData.forEach(({ expected, amountOut, reserveIn, reserveOut }) => {
-		it('should calculate correct amountOut', () => {
+		it('should calculate correct amountIn', () => {
 			const result = calculateAmountIn(amountOut, reserveIn, reserveOut).toString();
 
 			expect(result).eq(expected);

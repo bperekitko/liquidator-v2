@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import express from 'express';
 import { config } from '../config/config';
-import { PriceOracle } from './arbitrage/oracle/price-oracle';
+import { OffChainPriceOracle } from './arbitrage/oracle/off-chain-price-oracle';
 import { DAI } from './ethereum/constants/tokens/DAI';
 import { USDC } from './ethereum/constants/tokens/USDC';
 import { WBTC } from './ethereum/constants/tokens/WBTC';
@@ -21,7 +21,7 @@ export function startServer(): void {
 	app.get('/feeds', (req, res) => {
 		const feeds = [DAI, USDC, WBTC, WETH]
 			.map((token) => {
-				const price = PriceOracle.getEthPriceInWei(token);
+				const price = OffChainPriceOracle.getEthPriceInWei(token);
 				return `[${token.ticker}]: ${ethers.utils.formatEther(price)}ETH`;
 			})
 			.join('\n');

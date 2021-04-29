@@ -48,7 +48,7 @@ async function updatePriceFeeds(tokens: ERC20[]): Promise<void> {
 	priceFeeds = updatedFeeds;
 }
 
-export const PriceOracle = {
+export const OffChainPriceOracle = {
 	start,
 	stop,
 	getEthPriceInWei,

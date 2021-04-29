@@ -5,9 +5,13 @@ dist
 .env
 
 
-#Hardhat files
+# Hardhat files
 cache
 artifacts
 
-#Dev inventory
+# Dev inventory
 deployment/inventory/dev.yml
+
+# Tests outputs
+.nyc_output
+coverage

@@ -4,8 +4,8 @@ import UniswapV2PairAbi from '../../ethereum/abi/UniswapV2Pair.json';
 import { ERC20 } from '../../ethereum/erc20.model';
 import { ethereumSigner } from '../../ethereum/ethereum-signer';
 import { GasPriceProvider } from '../../ethereum/gas-price-provider';
-import { computeUniswapPairAddress } from '../uniswap/compute-pair-address/compute-pair-address';
-import { TradeablePair } from '../uniswap/tradeable-pair/tradeable-pair.model';
+import { TradeablePair } from '../model/tradeable-pair.model';
+import { computeUniswapPairAddress } from '../scanners/uniswap/pair-address/compute-uniswap-pair-address';
 
 export function executeArbitrage(
 	pair: TradeablePair,
@@ -22,7 +22,7 @@ export function executeArbitrage(
 	return pairContract.swap(amount0Out, amount1Out, arbitrageContractAddress, encodedData, overrides);
 }
 
-export function estimateGasForArbitrage(
+export async function estimateGasForArbitrage(
 	pair: TradeablePair,
 	arbitrageContractAddress: string,
 	encodedData: string
@@ -34,7 +34,8 @@ export function estimateGasForArbitrage(
 	const { amount0Out, amount1Out } = getAmountsOut(amount, inputToken, outputToken);
 	const pairContract = getPairContract(inputToken, outputToken);
 	const overrides = { gasPrice: GasPriceProvider.getFastestGasPrice().toString() };
-	return pairContract.estimateGas.swap(amount0Out, amount1Out, arbitrageContractAddress, encodedData, overrides);
+	// return pairContract.estimateGas.swap(amount0Out, amount1Out, arbitrageContractAddress, encodedData, overrides);
+	return BigNumber.from('235000');
 }
 
 function getPairContract(inputToken: ERC20, outputToken: ERC20) {

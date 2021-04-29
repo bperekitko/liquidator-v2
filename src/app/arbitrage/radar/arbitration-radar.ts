@@ -1,8 +1,13 @@
+import { FixedNumber } from '@ethersproject/bignumber';
+import { ethers } from 'ethers';
 import { Logger } from '../../logger/logger';
-import { checkSushiswapForOpportunity } from '../sushiswap/check-sushiswap';
-import { getPriceOnUniswap } from '../uniswap/get-price';
-import { getUniswapTradeablePairs } from '../uniswap/tradeable-pair/get-tradeable-pairs';
-import { TradeablePair } from '../uniswap/tradeable-pair/tradeable-pair.model';
+import { Opportunity } from '../model/opportunity.model';
+import { ScanResult } from '../model/scan/scan-result.model';
+import { Scanner } from '../model/scan/scanner.model';
+import { TradeablePair } from '../model/tradeable-pair.model';
+import { SushiswapScanner } from '../scanners/sushiswap/sushiswap-scanner';
+import { getPriceOnUniswap } from '../scanners/uniswap/price/get-uniswap-price';
+import { getUniswapTradeablePairs } from '../scanners/uniswap/tradeable-pair/get-uniswap-tradeable-pairs';
 
 const SCANNING_FRQUENCY_IN_MILIS = 10 * 1000;
 
@@ -10,6 +15,7 @@ const uniswapTradeablePairsPromise = getUniswapTradeablePairs();
 const log = new Logger('ARBITRATION RADAR');
 
 const scans: { [pairId: string]: boolean } = {};
+const scanners: Scanner[] = [new SushiswapScanner()];
 
 let interval: NodeJS.Timeout;
 
@@ -25,26 +31,39 @@ function stop(): void {
 }
 
 function scheduleScanning(pair: TradeablePair) {
-	interval = setInterval(() => {
-		if (isScanInProgress(pair)) {
-			log.debug(`Scan for ${pair.toString()} already in progress, skipping.`);
-		} else {
-			scanForArbitrage(pair);
-		}
-	}, SCANNING_FRQUENCY_IN_MILIS);
+	interval = setInterval(() => scanForArbitrage(pair), SCANNING_FRQUENCY_IN_MILIS);
 }
 
 function scanForArbitrage(pair: TradeablePair) {
 	log.debug(`Performing scan for ${pair.toString()} arbitrage opportunities.`);
 	scans[pair.toString()] = true;
 	getPriceOnUniswap(pair)
-		.then((price) => checkSushiswapForOpportunity(price, pair))
+		.then((price) => scanForOpportunities(price, pair))
 		.catch((error) => log.error(`Error while looking for opportunities for ${pair.toString()}`, error))
 		.finally(() => (scans[pair.toString()] = false));
 }
 
-function isScanInProgress(pair: TradeablePair): boolean {
-	return scans[pair.toString()];
+async function scanForOpportunities(price: FixedNumber, pair: TradeablePair): Promise<void> {
+	scanners
+		.map((scanner) => scanner.scan(price, pair))
+		.forEach((scanPromise) => scanPromise.then((scanResult) => handleResult(scanResult, pair)));
+}
+
+function handleResult(scanResult: ScanResult, pair: TradeablePair) {
+	const opportunity = scanResult.opportunity;
+	if (opportunity) {
+		log.info(`Found opportunity for ${pair.toString()} on ${scanResult.targetName}!`);
+		performArbitrage(opportunity);
+	} else {
+		log.debug(`Opportunity for ${pair.toString()} on ${scanResult.targetName} not found. ${scanResult.failReason}`);
+	}
+}
+
+function performArbitrage(opportunity: Opportunity) {
+	log.info(`Estimated profit: ${opportunity.estimatedProfit} ${opportunity.pair.getOutputToken().ticker}.`);
+	log.info(
+		`Estimated gas cost: ${ethers.utils.formatUnits(opportunity.estimatedGasCostInWei.toString(), 'eth')} ETH.!`
+	);
 }
 
 export const ArbitrationRadar = {

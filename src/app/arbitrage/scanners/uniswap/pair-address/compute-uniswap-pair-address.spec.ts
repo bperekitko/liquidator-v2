@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import { DAI } from '../../../ethereum/constants/tokens/DAI';
-import { USDC } from '../../../ethereum/constants/tokens/USDC';
-import { WBTC } from '../../../ethereum/constants/tokens/WBTC';
-import { WETH } from '../../../ethereum/constants/tokens/WETH';
-import { computeUniswapPairAddress } from './compute-pair-address';
+import { DAI } from '../../../../ethereum/constants/tokens/DAI';
+import { USDC } from '../../../../ethereum/constants/tokens/USDC';
+import { WBTC } from '../../../../ethereum/constants/tokens/WBTC';
+import { WETH } from '../../../../ethereum/constants/tokens/WETH';
+import { computeUniswapPairAddress } from './compute-uniswap-pair-address';
 
 describe('Compute Uniswap pair address', function () {
 	it('should calculate correct DAI/WETH pair address', function () {
