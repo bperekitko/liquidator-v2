@@ -8,7 +8,7 @@ import { Logger } from '../../../logger/logger';
 import { TradeablePair } from '../../model/tradeable-pair.model';
 import { POOLS_URL } from './pools-url';
 
-const log = new Logger('BALANCER: SMART ORDER ROUTER');
+const log = new Logger('BALANCER');
 const POOLS_FETCHING_FREQUENCY = 60 * 60 * 1000;
 const MAX_POOLS_HOP = 4;
 const SWAP_TYPE = 'swapExactIn';
@@ -18,16 +18,16 @@ let poolsFetchingInterval: NodeJS.Timeout;
 
 async function start(): Promise<void> {
 	if (!poolsFetchingInterval) {
-		log.info(`Initializing Smart Order Router`);
+		log.debug(`Initializing Smart Order Router`);
 
-		const gasPrice = GasPriceProvider.getFastestGasPrice().toString();
+		const gasPrice = (await GasPriceProvider.getFastestGasPrice()).toString();
 		sor = new SOR(ethereumProvider, new BigNumber(gasPrice), MAX_POOLS_HOP, CHAIN_ID, POOLS_URL);
 		await sor.fetchPools();
 		schedulePoolsFetching();
 
-		log.info(`Smart Order Router initialiazed`);
+		log.debug(`Smart Order Router initialiazed`);
 	} else {
-		log.warn(`Smart Order Router already initialized, skipping`);
+		log.debug(`Smart Order Router already initialized, skipping`);
 	}
 }
 
@@ -35,7 +35,7 @@ function stop(): void {
 	if (poolsFetchingInterval) {
 		clearInterval(poolsFetchingInterval);
 	} else {
-		log.warn(`Smart Order Router already stopped.`);
+		log.debug(`Smart Order Router already stopped.`);
 	}
 }
 
@@ -52,7 +52,7 @@ async function getPriceWithSwaps(pair: TradeablePair): Promise<{ swaps: Swap[][]
 	const ouputDenominator = new BigNumber(10).pow(outputToken.decimals).multipliedBy(inputToken.tradeAmount);
 	const price = amountOut.div(ouputDenominator).decimalPlaces(6).toString();
 
-	log.debug(`Balancer ${pair.toString()} price: ${price}`);
+	log.debug(`${pair.toString()} price: ${price}`);
 
 	return { swaps, price };
 }

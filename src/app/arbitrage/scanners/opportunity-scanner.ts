@@ -1,40 +1,37 @@
-import { FixedNumber } from 'ethers';
-import { Opportunity } from '../model/opportunity.model';
-import { FailedScan } from '../model/scan/failed-scan.model';
-import { ScanFailReason } from '../model/scan/scan-fail-reasons.model';
+import { FixedNumber } from '@ethersproject/bignumber';
+import { Logger } from '../../logger/logger';
+import { PriceProvider } from '../model/arbitrage-data-provider.model';
 import { ScanResult } from '../model/scan/scan-result.model';
 import { Scanner } from '../model/scan/scanner.model';
-import { SuccessfulScan } from '../model/scan/successful-scan.model';
 import { TradeablePair } from '../model/tradeable-pair.model';
-import { Profitability } from '../radar/calculate-profitability';
 
-export abstract class OpportunityScanner implements Scanner {
-	private readonly name: string;
+export class OpportunityScanner implements Scanner {
+	private targetName: string;
+	private priceProvider: PriceProvider;
+	private log: Logger;
 
-	protected arbitrageurAddress: string;
-
-	constructor(arbitrageurAddress: string, name: string) {
-		this.arbitrageurAddress = arbitrageurAddress;
-		this.name = name;
+	constructor(targetName: string, priceProvider: PriceProvider) {
+		this.targetName = targetName;
+		this.priceProvider = priceProvider;
+		this.log = new Logger(targetName);
 	}
 
-	abstract pairExists(pair: TradeablePair): Promise<boolean>;
-	abstract scanTarget(pair: TradeablePair): Promise<{ targetPrice: FixedNumber; arbitrageEncodedData: string }>;
-	abstract getProfitability(pair: TradeablePair, price: FixedNumber, targetPrice: FixedNumber): Promise<Profitability>;
+	async scan(basePrice: FixedNumber, pair: TradeablePair): Promise<ScanResult> {
+		const { price, arbitrageEncodedData } = await this.priceProvider.getPrice(pair);
 
-	async scan(price: FixedNumber, pair: TradeablePair): Promise<ScanResult> {
-		const pairExists = await this.pairExists(pair);
-		return pairExists
-			? await this.performScan(price, pair)
-			: new FailedScan(this.name, pair, ScanFailReason.PAIR_IMPOSSIBLE_TO_SCAN);
-	}
+		if (!price) {
+			this.log.debug(`Could not get price for ${pair.toString()}.`);
+			return { targetName: this.targetName };
+		}
 
-	private async performScan(price: FixedNumber, pair: TradeablePair): Promise<ScanResult> {
-		const { targetPrice, arbitrageEncodedData } = await this.scanTarget(pair);
+		if (this.isTargetPriceHigher(basePrice, price)) {
+			this.log.debug(`Found lower price for ${pair.toString()}.`);
+			const opportunity = { basePrice, targetPrice: price, pair, arbitrageEncodedData };
+			return { targetName: this.targetName, opportunity };
+		}
 
-		return this.isTargetPriceHigher(price, targetPrice)
-			? await this.scanProfitability(pair, price, targetPrice, arbitrageEncodedData)
-			: new FailedScan(this.name, pair, ScanFailReason.PRICE_TOO_HIGH);
+		this.log.debug(`Price for ${pair.toString()} is too high.`);
+		return { targetName: this.targetName };
 	}
 
 	private isTargetPriceHigher(basePrice: FixedNumber, targetPrice: FixedNumber) {
@@ -45,36 +42,5 @@ export abstract class OpportunityScanner implements Scanner {
 			!targetPrice.isZero() &&
 			basePrice < targetPrice
 		);
-	}
-
-	private async scanProfitability(
-		pair: TradeablePair,
-		price: FixedNumber,
-		targetPrice: FixedNumber,
-		arbitrageurEncodedData: string
-	): Promise<ScanResult> {
-		const { isProfitable, estimatedProfit, gasCostInWei } = await this.getProfitability(pair, price, targetPrice);
-
-		return isProfitable
-			? this.success(pair, arbitrageurEncodedData, estimatedProfit, gasCostInWei)
-			: this.failure(pair, ScanFailReason.GAS_COSTS_TOO_HIGH);
-	}
-
-	private failure(pair: TradeablePair, failReason: ScanFailReason): ScanResult {
-		return new FailedScan(this.name, pair, failReason);
-	}
-
-	private success(pair: TradeablePair, encodedData: string, profit: FixedNumber, gasCost: string): ScanResult {
-		return new SuccessfulScan(this.name, this.createOpportunity(pair, encodedData, profit, gasCost));
-	}
-
-	private createOpportunity(pair: TradeablePair, data: string, profit: FixedNumber, gasCost: string): Opportunity {
-		return {
-			pair: pair,
-			arbitrageurAddress: this.arbitrageurAddress,
-			arbitrageurEncodedData: data,
-			estimatedProfit: profit,
-			estimatedGasCostInWei: gasCost,
-		};
 	}
 }

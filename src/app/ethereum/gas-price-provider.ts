@@ -9,11 +9,22 @@ const log = new Logger('GAS PRICE PROVIDER');
 let gasPrice: BigNumber;
 let interval: NodeJS.Timeout;
 
+const started = new Promise<void>((resolve) => {
+	const startedInterval = setInterval(() => {
+		if (!!interval) {
+			resolve();
+			clearInterval(startedInterval);
+		}
+	}, 500);
+});
+
 async function start(): Promise<void> {
-	log.debug('Starting to monitor gas price.');
+	log.info('Starting to monitor gas price.');
 	if (!interval) {
 		await updateGasPrice();
+		log.info(`Current gas price is ${ethers.utils.formatUnits(gasPrice, 'gwei')} gwei.`);
 		scheduleUpdates();
+		log.info('Gas price monitoring sucessfuly started.');
 	}
 }
 
@@ -35,8 +46,15 @@ function stop(): void {
 	interval = undefined;
 }
 
-const getAverageGasPrice = (): BigNumber => gasPrice;
-const getFastestGasPrice = (): BigNumber => gasPrice.mul(2);
+const getAverageGasPrice = async (): Promise<BigNumber> => {
+	await started;
+	return gasPrice;
+};
+
+const getFastestGasPrice = async (): Promise<BigNumber> => {
+	await started;
+	return gasPrice.mul(2);
+};
 
 export const GasPriceProvider = {
 	start,
