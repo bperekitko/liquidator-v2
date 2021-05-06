@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber } from '@ethersproject/bignumber';
 
 const WITH_FEE_MULTIPLIER = 997;
 const WITHOUT_FEE_MULTIPLIER = 1000;

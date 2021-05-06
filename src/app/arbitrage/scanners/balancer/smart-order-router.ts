@@ -1,8 +1,8 @@
 import { SOR } from '@balancer-labs/sor';
 import { Swap } from '@balancer-labs/sor/dist/types';
 import { BigNumber } from '@balancer-labs/sor/dist/utils/bignumber';
-import { CHAIN_ID } from '../../../ethereum/chain-id';
 import { ethereumProvider } from '../../../ethereum/ethereum-provider';
+import { ethereumSigner } from '../../../ethereum/ethereum-signer';
 import { GasPriceProvider } from '../../../ethereum/gas-price-provider';
 import { Logger } from '../../../logger/logger';
 import { TradeablePair } from '../../model/tradeable-pair.model';
@@ -21,13 +21,16 @@ async function start(): Promise<void> {
 		log.debug(`Initializing Smart Order Router`);
 
 		const gasPrice = (await GasPriceProvider.getFastestGasPrice()).toString();
-		sor = new SOR(ethereumProvider, new BigNumber(gasPrice), MAX_POOLS_HOP, CHAIN_ID, POOLS_URL);
+		const chainId = await ethereumSigner.getChainId();
+
+		sor = new SOR(ethereumProvider, new BigNumber(gasPrice), MAX_POOLS_HOP, chainId, POOLS_URL);
+
 		await sor.fetchPools();
 		schedulePoolsFetching();
 
 		log.debug(`Smart Order Router initialiazed`);
 	} else {
-		log.debug(`Smart Order Router already initialized, skipping`);
+		log.warn(`Smart Order Router already initialized, skipping`);
 	}
 }
 
@@ -35,7 +38,7 @@ function stop(): void {
 	if (poolsFetchingInterval) {
 		clearInterval(poolsFetchingInterval);
 	} else {
-		log.debug(`Smart Order Router already stopped.`);
+		log.warn(`Smart Order Router already stopped.`);
 	}
 }
 

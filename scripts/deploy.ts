@@ -1,7 +1,9 @@
-import { deploySushiswapArbitrageur } from './deploySushiswapArbitrageur';
+import { deployBalancerArbitrageur } from './deploy-balancer-arbitrageur';
+import { deploySushiswapArbitrageur } from './deploy-sushiswap-arbitrageur';
 
 async function deploy() {
 	await deploySushiswapArbitrageur();
+	await deployBalancerArbitrageur();
 }
 
 deploy()

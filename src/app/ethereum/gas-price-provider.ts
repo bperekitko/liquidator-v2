@@ -1,4 +1,5 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from '@ethersproject/bignumber';
+import { ethers } from 'ethers';
 import { Logger } from '../logger/logger';
 import { ethereumProvider } from './ethereum-provider';
 
@@ -15,7 +16,7 @@ const started = new Promise<void>((resolve) => {
 			resolve();
 			clearInterval(startedInterval);
 		}
-	}, 500);
+	}, 1000);
 });
 
 async function start(): Promise<void> {
