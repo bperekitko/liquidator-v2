@@ -14,7 +14,7 @@
     warn: no
     creates: '{{ nvm_home }}/nvm.sh'
 - name: Ensure Node.js is installed
-  shell: '. {{ nvm_home }}/nvm.sh && nvm install 10'
+  shell: '. {{ nvm_home }}/nvm.sh && nvm install 12'
   args:
     creates: '{{ nvm_home }}/versions/node'
     executable: /bin/bash
