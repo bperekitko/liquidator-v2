@@ -2,7 +2,7 @@ import { FixedNumber } from '@ethersproject/bignumber';
 import { ethers } from 'ethers';
 import { ARBITRAGEURS } from '../../ethereum/constants/contracts/arbitrageurs';
 import { Logger } from '../../logger/logger';
-import { estimateGasForArbitrage, executeArbitrage } from '../executor/execute-arbitrage';
+import { estimateGasForArbitrage } from '../executor/execute-arbitrage';
 import { ScanResult } from '../model/scan/scan-result.model';
 import { Scanner } from '../model/scan/scanner.model';
 import { TradeablePair } from '../model/tradeable-pair.model';
@@ -64,7 +64,7 @@ async function handleSuccessfulScan(scanResult: ScanResult): Promise<void> {
 
 	if (isProfitable) {
 		log.info(`Profitable opportunity on ${scanResult.targetName} for ${opportunity.pair.toString()}.`);
-		executeArbitrage(opportunity, arbitrageurContractAddress);
+		// executeArbitrage(opportunity, arbitrageurContractAddress);
 	} else {
 		log.info(
 			`Opportunity on ${scanResult.targetName} for ${opportunity.pair.toString()} not profitable due to Gas costs.`
